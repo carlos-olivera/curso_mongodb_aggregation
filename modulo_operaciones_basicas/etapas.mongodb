@@ -1,0 +1,41 @@
+use('sample_airbnb')
+
+db.listingsAndReviews.aggregate([
+    {
+        $group: {
+            _id: "$property_type",
+
+            precioMedia: {
+                $avg: "$price"
+            },
+            count: {
+                $sum: 1
+            },
+
+            masBajo: {
+                $first: {
+                    nombre: "$name",
+                    precio: "$price",
+                    direccion: "$address",
+                }
+            },
+            masAlto: {
+                $last: {
+                    nombre: "$name",
+                    precio: "$price",
+                    direccion: "$address",
+                }
+            }
+        }
+    },
+    {
+        $project: {
+            "_id": 0,
+            "Precio promedio": "$precioMedia",
+            "Cantidad de propiedades": "$count",
+            "Tipo de propiedad": "$_id",
+            "Menor precio": "$masBajo.precio",
+            "Mayor precio": "$masAlto.precio"
+        }
+    }
+])

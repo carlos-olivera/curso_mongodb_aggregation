@@ -1,0 +1,16 @@
+use('sample_airbnb')
+  
+db.listingsAndReviews.aggregate([
+    {
+      $bucket: {
+        groupBy: "$review_scores.review_scores_rating",
+        boundaries: [0, 50, 70, 85, 100],
+        default: "N/A",
+        output: {
+          count: { $sum: 1 }
+        }
+      }
+    }
+])
+
+  

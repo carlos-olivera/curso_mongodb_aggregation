@@ -1,0 +1,35 @@
+use('sample_supplies')
+
+// Función Map
+var mapFunction = function() {
+
+    if (this.storeLocation == "London") {
+        emit(this.purchaseMethod, this.customer.age);
+    }
+};
+
+// Función Reduce
+var reduceFunction = function(key, values) {
+    var total = 0;
+    var count = 0;
+    values.forEach(function(value) {
+        total += value;
+        count += 1;
+    });
+   
+    return total / count;
+};
+
+// Función Finalize para redondear la media
+var finalizeFunction = function (key, reducedValue) {
+    return Math.round(reducedValue);
+};
+
+db.sales.mapReduce(
+    mapFunction,
+    reduceFunction,
+    { 
+        out: { inline: 1 },
+        finalize: finalizeFunction
+    }
+)

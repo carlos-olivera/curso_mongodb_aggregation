@@ -1,0 +1,28 @@
+
+use('sample_supplies')
+
+db.sales.aggregate([
+
+    { $match: {"storeLocation":"London"}},
+
+    {
+        $group: {
+            _id: "$purchaseMethod",
+            avgAge: {$avg: "$customer.age"}
+        }
+    },
+    {
+        $project: {
+            _id:0,
+            metodo:"$_id",
+            mediaEdad:{$round:["$avgAge"]}
+        }
+    },
+    {
+        $sort: {
+            "mediaEdad":1
+        }
+    }
+  
+
+])

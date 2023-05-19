@@ -1,0 +1,17 @@
+use('sample_airbnb');
+
+db.listingsAndReviews.aggregate([
+
+  {
+    $redact: {
+      $cond: {
+      if:{ $gte: ["$review_scores.review_scores_rating",95]},
+      then:"$$KEEP",
+      else: "$$PRUNE"
+    }}
+  },
+  {$count: "count"}
+
+    
+])
+  

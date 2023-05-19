@@ -1,0 +1,24 @@
+use('sample_airbnb')
+
+db.listingsAndReviews.aggregate([
+   {
+      $sort: {
+         "address.market": 1,
+         price: -1
+      }
+   },
+   {
+      $group: {
+         _id: "$address.market",
+         mostExpensiveListing: {
+            $first: {
+               name: "$name",
+               price: "$price"
+            }
+         }
+      }
+   },
+   {
+      $out: "mostExpensivePropertiesByCity"
+   }
+])

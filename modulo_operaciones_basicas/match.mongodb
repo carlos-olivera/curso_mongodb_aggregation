@@ -1,0 +1,17 @@
+use('sample_airbnb')
+
+db.listingsAndReviews.aggregate([
+
+    {
+        $match:
+            { "address.country_code": "US" }
+    },
+
+    {
+        $sort: {
+            price: 1,
+        },
+    },
+
+    { $limit: 1 }
+])

@@ -1,0 +1,64 @@
+use('sample_airbnb')
+
+db.listingsAndReviews.aggregate([
+
+    {
+        $group: {
+            _id: "$property_type",
+
+            precioMedia: {
+                $avg: "$price"
+            },
+            cantidad: {
+                $sum: 1
+            },
+
+            masBaja: {
+                $first: {
+                    name: "$name",
+                    price: "$price",
+                    address: "$address",
+                }
+            },
+
+            masAlta: {
+                $last: {
+                    name: "$name",
+                    price: "$price",
+                    address: "$address",
+                }
+            }
+        }
+    },
+    {
+        $set: {
+            "Tipo de Propiedad": "$_id",
+
+            "Número de Propiedades": "$cantidad",
+
+            "Precio Promedio": { $round: ["$precioMedia", 2] },
+
+
+
+            "Propiedades Destacadas": [
+                {
+                    "Tipo": "Más Barata",
+                    "Nombre": "$masBaja.name",
+                    "Precio": { $round: ["$masBaja.price", 2] },
+                    "Dirección": "$masBaja.address"
+                },
+                {
+                    "Tipo": "Más Cara",
+                    "Nombre": "$mostExpensiveProperty.name",
+                    "Precio": { $round: ["$masAlta.price", 2] },
+                    "Dirección": "$masAlta.address"
+                }
+            ]
+        }
+    },
+    {
+        $project: { _id: 0, precioMedia: 0, cantidad: 0, masBaja: 0, masAlta: 0 }
+    }
+
+
+])

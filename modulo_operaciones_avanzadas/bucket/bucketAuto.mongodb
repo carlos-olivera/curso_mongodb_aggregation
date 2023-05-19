@@ -1,0 +1,13 @@
+use('sample_airbnb')
+  
+db.listingsAndReviews.aggregate([
+    {
+      $bucketAuto: {
+        groupBy: "$review_scores.review_scores_rating",
+        buckets: 4,
+        output: {
+          count: { $sum: 1 },
+        }
+      }
+    }
+  ])

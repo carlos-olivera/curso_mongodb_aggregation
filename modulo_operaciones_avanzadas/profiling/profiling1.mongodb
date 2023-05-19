@@ -1,0 +1,45 @@
+use('sample_airbnb')
+
+db.listingsAndReviews.explain("executionStats").aggregate([
+    {
+        $match: { "availability.availability_30": { $gt: 95 } }
+    },
+    {
+        $addFields: {
+            precio: {
+                $toDouble: "$price"
+            }
+        }
+    },
+    {
+        $group: {
+            _id: null,
+            total: {
+                $accumulator: {
+                    init: function() { // Initialize the accumulation state.
+                        return { sum: 0, count: 0 };
+                    },
+
+                    accumulateArgs: ["$precio"], // Specifies the input fields.
+
+                    accumulate: function(state, price) { // Define how data accumulates.
+                        return { sum: state.sum + price, count: state.count + 1 };
+                    },
+                    
+                    merge: function(state1, state2) {
+                        return { 
+                            sum: state1.sum + state2.sum, 
+                            count: state1.count + state2.count 
+                        };
+                    },
+
+                    finalize: function(state) {
+                        return state.sum / state.count;
+                    },
+
+                    lang: "js"
+                }
+            }
+        }
+    }
+])

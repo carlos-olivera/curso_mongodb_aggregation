@@ -1,0 +1,52 @@
+use('sample_airbnb')
+
+db.listingsAndReviews.aggregate([
+    {
+      $geoNear: {
+        near: {
+          type: "Point",
+          coordinates: [
+            -73.95630558699014, 40.799922259338025,
+          ],
+        },
+        distanceField: "distancia",
+        maxDistance: 30000,
+        spherical: true,
+      },
+    },
+    {
+      $match:
+        {
+          beds: {
+            $ne: 0,
+          },
+        },
+    },
+    {
+      $project:
+        {
+          distancia: 1,
+          precioPcama: {
+            $divide: ["$price", "$beds"],
+          },
+        },
+    },
+    {
+      $group:
+        {
+          _id: {
+            $cond: {
+              if: {
+                $lte: ["$distancia", 2000],
+              },
+              then: "menos2k",
+              else: "mas2k",
+            },
+          },
+          mediaPCama: {
+            $avg: "$precioPcama",
+          },
+        },
+    },
+  ])
+  
